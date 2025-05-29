@@ -1,0 +1,56 @@
+@page "/agregar-cliente"
+@inject IHttpClientFactory ClientFactory
+@inject NavigationManager Navigation
+
+<h3>Agregar Cliente</h3>
+
+<EditForm Model="cliente" OnValidSubmit="AgregarCliente" FormName="AgregarClienteForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>Nombre:</label>
+        <InputText @bind-Value="cliente.nombre" />
+    </div>
+    <div>
+        <label>Apellido:</label>
+        <InputText @bind-Value="cliente.apellido" />
+    </div>
+    <div>
+        <label>Correo:</label>
+        <InputText @bind-Value="cliente.correo" />
+    </div>
+    <div>
+        <label>Direccion:</label>
+        <InputText @bind-Value="cliente.direccion" />
+    </div>
+    <div>
+        <label>Telefono:</label>
+        <InputText @bind-Value="cliente.telefono" />
+    </div>
+    <button type="submit">Guardar</button>
+</EditForm>
+
+@code {
+    private Clientes cliente = new Clientes();
+
+    private async Task AgregarCliente()
+    {
+        try{
+        var client = ClientFactory.CreateClient("WebApiClientes");
+        var response = await client.PostAsJsonAsync("Cliente", cliente);
+
+        if(response.IsSuccessStatusCode){
+        Navigation.NavigateTo("/clientes");
+        }
+        else {
+            var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error: {errorContent}");
+        }
+        }
+        catch (Exception ex)
+        {
+            // Manejar la excepción
+            Console.WriteLine($"Excepción: {ex.Message}");
+        }
+    }
+}

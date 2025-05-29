@@ -1,0 +1,46 @@
+@page "/clientes"
+@inject IHttpClientFactory ClientFactory
+@inject NavigationManager Navigation
+
+<h3>Lista de Clientes</h3>
+
+@if (clientes == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <ul>
+        @foreach (var cliente in clientes)
+        {
+            <li>
+                @cliente.nombre - @cliente.apellido - @cliente.correo - @cliente.direccion - @cliente.telefono
+                <button @onclick="() => EliminarCliente(cliente.Id)">Eliminar</button>
+                <button @onclick="() => EditarCliente(cliente.Id)">Editar</button>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Clientes> clientes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var client = ClientFactory.CreateClient("WebApiClientes");
+        clientes = await client.GetFromJsonAsync<List<Clientes>>("Cliente");
+    }
+
+    private async Task EliminarCliente(int id)
+    {
+        var client = ClientFactory.CreateClient("WebApiClientes");
+        await client.DeleteAsync($"Cliente/{id}");
+        clientes = await client.GetFromJsonAsync<List<Clientes>>("Cliente");
+    }
+
+    private void EditarCliente(int id)
+    {
+        // Navega a una página de edición
+        Navigation.NavigateTo($"/editar-cliente/{id}");
+    }
+}
